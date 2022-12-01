@@ -11,6 +11,7 @@ class WikiGraphCreator():
         
         self.dumpFileName=dumpFileLocation
         self.graphFileName=graphFileLocation
+        self.helperFileName = graphFileLocation[:-4]+"_helper.txt"
         self.totalTime=0
         self.completed=False
         self.totalNodes=0
