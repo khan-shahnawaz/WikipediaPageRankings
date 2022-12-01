@@ -3,13 +3,12 @@ import xml.etree.ElementTree as ET
 import re
 import time
 
-#Class that creates wikigraph file
+''' Class that creates wikigraph file'''
 class WikiGraphCreator():
     def __init__(self, dumpFileLocation:str, graphFileLocation:str)->None:
         ''' Constructor to Open files and initialise variables'''
         
-        self.bzFile = bz2.BZ2File(dumpFileLocation)
-        self.graphFile = open(graphFileLocation,'w',encoding='utf-8')
+        
         self.dumpFileName=dumpFileLocation
         self.graphFileName=graphFileLocation
         self.totalTime=0
@@ -20,6 +19,8 @@ class WikiGraphCreator():
         
     def createGraph(self)->None:
         ''' Creates wikigraph for the object '''
+        self.bzFile = bz2.BZ2File(self.dumpFileName)
+        self.graphFile = open(self.graphFileName,'w',encoding='utf-8')
         startTime=time.time()
         
         while True:
@@ -29,8 +30,10 @@ class WikiGraphCreator():
                 break
             
             line=str(nextLine, 'utf-8').strip()
+            
             if line=="<page>":
-                
+                if self.totalNodes%1000000==0:
+                    print("Completed {} Nodes".format(self.totalNodes))
                 ''' If a new page starts'''
                 categories=[]
                 outEdges=[]
@@ -45,21 +48,29 @@ class WikiGraphCreator():
                 for child in pageRoot:
                     if child.tag=='title':
                         title=child.text
+                        if '\n' in title:
+                            continue
+                        self.graphFile.write(title)
+                        self.graphFile.write('\n')
+                        
                     for nextchild in child:
                         if nextchild.tag=='text':
+                            if not nextchild.text:
+                                continue    
                             listOfLinks=re.findall('\[\[([^\[\]]+)\]\]',nextchild.text)
                             for link in listOfLinks:
                                 link=str(link.split('|')[0])
+                                if '\n' in link:
+                                    continue
                                 if link.startswith('Category:'):
                                     categories.append(link[9:])
                                     self.totalCategories+=1
                                 else:
-                                    if ':' not in link:
+                                    if 'Link:' not in link and 'File:' not in link:
                                         outEdges.append(link)
                                         self.totalEdges+=1
                 
-                self.graphFile.write(title)
-                self.graphFile.write('\n')
+                
                 self.graphFile.write(str(len(categories)))
                 self.graphFile.write('\n')
                 for category in categories:
@@ -73,6 +84,38 @@ class WikiGraphCreator():
         endTime=time.time()
         self.totalTime=(endTime-startTime)
         self.completed=True
+        self.bzFile.close()
+        self.graphFile.close()
+    
+    def createHelperFile(self)->None:
+        ''' Creates a helper file for the wikigraph '''
+        if not self.completed:
+            print("Please create the graph first")
+            return
+        helperFile=open(self.graphFileName[:-4]+"_helper.txt",'w',encoding='utf-8')
+        self.graphFile=open(self.graphFileName,'r',encoding='utf-8')
+        c=0
+        curLine= self.graphFile.readline()
+        while curLine:
+            c+=1
+            nodeName=curLine.strip()
+            
+            categoryOffset=self.graphFile.tell()
+            numCategory=int(self.graphFile.readline().strip())
+            for i in range(numCategory):
+                self.graphFile.readline()
+            outlinkOffset=self.graphFile.tell()
+            numOutLinks=int(self.graphFile.readline().strip())
+            for i in range(numOutLinks):
+                self.graphFile.readline()
+            helperFile.write(nodeName)
+            helperFile.write('\n')
+            helperFile.write(str(categoryOffset)+' '+str(outlinkOffset)+'\n')
+            curLine=self.graphFile.readline()
+        helperFile.close()
+        print(c)
+        return
+    
     def printStatistics(self)->None:
         print("WikiGraph created from dump {} and stored in {}".format(self.dumpFileName, self.graphFileName))
         print("Total Time Taken:",self.totalTime,'seconds')
