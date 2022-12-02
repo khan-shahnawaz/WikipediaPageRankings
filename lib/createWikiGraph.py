@@ -67,7 +67,7 @@ class WikiGraphCreator():
                                     categories.append(link[9:])
                                     self.totalCategories+=1
                                 else:
-                                    if 'Link:' not in link and 'File:' not in link:
+                                    if 'Link:' not in link and 'File:' not in link and 'Wikipedia:' not in link and 'Help:' not in link:
                                         outEdges.append(link)
                                         self.totalEdges+=1
                 
@@ -114,7 +114,7 @@ class WikiGraphCreator():
             helperFile.write(str(categoryOffset)+' '+str(outlinkOffset)+'\n')
             curLine=self.graphFile.readline()
         helperFile.close()
-        print(c)
+        self.graphFile.close()
         return
     
     def printStatistics(self)->None:
