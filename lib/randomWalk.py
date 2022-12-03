@@ -74,15 +74,20 @@ class RandomWalk():
         with open(fileName,'w',encoding='utf-8') as f:  #Open the file
             f.write("Top {} Categories on Wikipedia\n".format(topCategoriesLimit))    #Write the top categories limit
             resultsFile =open(resultsFileName,'r',encoding='utf-8')   #Open the results file
-            resultsFile.readlines(4)  #Skip the first four lines
+            resultsFile.readline()  #Skip the first four lines
+            resultsFile.readline()  #Skip the first four lines
+            resultsFile.readline()  #Skip the first four lines
+            resultsFile.readline()  #Skip the first four lines
             curLine = resultsFile.readline()    #Read the next line
             nodes = []      #List to store the nodes
             graphFile = open(self.graphFileName, 'r', encoding='utf-8')   #Open the graph file
             visits = []      #List to store the number of visits
             while curLine:    #While the line is not empty
                 lineBreak = curLine.split()  #Split the line
+                
                 lineBreak.pop()
                 visits.append(int(lineBreak.pop()))   #Get the number of visits
+                lineBreak.pop()  #Skip the word with
                 nodes.append(' '.join(lineBreak))     #Get the node name
                 curLine = resultsFile.readline()    #Read the next line
             categories=defaultdict(int)   #Dictionary to store the category name to the number of visits
