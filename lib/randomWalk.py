@@ -1,7 +1,7 @@
 import random
 from .createWikiGraph import WikiGraphCreator
 import heapq
-import numpy as np
+
 
 ''' Class that performs random walk on the wikigraph'''
 class RandomWalk():
@@ -11,7 +11,7 @@ class RandomWalk():
         self.offsetMap = {}                             #Map of node index to the offset of the adjacency list
         self.nodeList={}                                #Dictionary to store the nodename to index of node
         self.numNodes=0                                 #Number of nodes in the graph
-        self.numVisits=np.array([])                     #Array to store the number of visits to each node
+        self.numVisits=[]                     #Array to store the number of visits to each node
         self.nodeIndex={}                               #Dictionary to store the index of node to nodename
         self.walkLength=0                               #Length of the random walk
         
@@ -29,7 +29,7 @@ class RandomWalk():
                 self.offsetMap[self.numNodes] = (int(categoryOffset), int(outlinkOffset))   #Add the offset to the offset map
                 self.numNodes+=1                                    #Increment the number of nodes
                 curLine = f.readline()                            #Read the next line
-        self.numVisits=np.array([[0,i] for i in range(self.numNodes)])      #Initialize the number of visits array
+        self.numVisits=[[0,i] for i in range(self.numNodes)]      #Initialize the number of visits array
     def randomWalk(self, startNode: int, walkLength: int) -> None:
         ''' Function to perform random walk on the graph'''
         curNode = self.nodeIndex[startNode]    #Get the index of the start node
