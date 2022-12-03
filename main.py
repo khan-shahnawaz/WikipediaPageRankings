@@ -13,5 +13,6 @@ wikiCreate.printStatistics()    #Ptints statistics of the graph
 
 randomWalker = RandomWalk(wikiCreate)   #Initialize the random walker
 randomWalker.loadGraph()                #Load the nodes and the offsets of adjacency list
-randomWalker.randomWalk(startNode='AccessibleComputing',walkLength= 10000000)   #Start the random walk with the given start node and walk length
-randomWalker.flushResults(fileName= 'Results/randomWalkResults.txt',topNodesLimit= 100) #Flush the results to a file
+#randomWalker.randomWalk(startNode='AccessibleComputing',walkLength= 10000000)   #Start the random walk with the given start node and walk length
+#randomWalker.flushResults(fileName= 'Results/randomWalkResults.txt',topNodesLimit= 100) #Flush the results to a file
+randomWalker.topCategories(fileName='Results/topCategories.txt',resultsFileName='Results/randomWalkResults.txt',topNodesLimit= 100) #Print the top categories

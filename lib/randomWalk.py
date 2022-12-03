@@ -1,6 +1,7 @@
 import random
 from .createWikiGraph import WikiGraphCreator
 import heapq
+from collections import defaultdict
 
 
 ''' Class that performs random walk on the wikigraph'''
@@ -68,4 +69,30 @@ class RandomWalk():
                 totalVisits ,nextBest = heapq.heappop(self.numVisits)   #Get the next best node
                 f.write("{} with {} visits\n".format(self.nodeList[nextBest],-1*totalVisits))   #Write the node name and the number of visits
         
-            
+    def topCategories(self, fileName:str, resultsFileName:str, topCategoriesLimit:int)->None:
+        ''' Function to get the top categories'''
+        with open(fileName,'w',encoding='utf-8') as f:  #Open the file
+            f.write("Top {} Categories on Wikipedia\n".format(topCategoriesLimit))    #Write the top categories limit
+            resultsFile =open(resultsFileName,'r',encoding='utf-8')   #Open the results file
+            resultsFile.readlines(4)  #Skip the first four lines
+            curLine = resultsFile.readline()    #Read the next line
+            nodes = []      #List to store the nodes
+            graphFile = open(self.graphFileName, 'r', encoding='utf-8')   #Open the graph file
+            visits = []      #List to store the number of visits
+            while curLine:    #While the line is not empty
+                lineBreak = curLine.split()  #Split the line
+                lineBreak.pop()
+                visits.append(int(lineBreak.pop()))   #Get the number of visits
+                nodes.append(' '.join(lineBreak))     #Get the node name
+                curLine = resultsFile.readline()    #Read the next line
+            categories=defaultdict(int)   #Dictionary to store the category name to the number of visits
+            for i in range(len(nodes)):  #For each node
+                curNode = nodes[i]      #Get the node name
+                categoryOffset, outlinkOffset = self.offsetMap[self.nodeIndex[curNode]]  #Get the category offset and outlink offset
+                graphFile.seek(categoryOffset)   #Seek to the category offset
+                for j in range(int(graphFile.readline().strip())):  #For each category
+                    category= graphFile.readline().strip()   #Get the category
+                    categories[category]+=visits[i]   #Increment the number of visits to the category
+            for category, visits in sorted(categories.items(), key=lambda x: x[1], reverse=True)[:topCategoriesLimit]:  #For the top categories limit
+                f.write("{}\n".format(category))   #Write the category name and the number of visits
+                
